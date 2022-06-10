@@ -69,3 +69,18 @@ export async function redirectToUrl(req, res) {
         res.status(500).send(e)
     }
 }
+
+export async function deleteUrl(req, res) {
+    const { id } = req.params
+    try {
+        const query = await connection.query(
+            `DELETE FROM links
+            WHERE id = $1
+            `,
+            [id]
+        )
+        return res.sendStatus(204)
+    } catch (e) {
+        res.status(500).send(e)
+    }
+}

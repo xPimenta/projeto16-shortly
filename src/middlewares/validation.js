@@ -97,3 +97,23 @@ export async function validateToken(req, res, next) {
         return res.status(500).send(e)
     }
 }
+
+export async function validateUrlDelete(req, res, next) {
+    const { id } = req.params
+    const { user } = res.locals
+
+    try {
+        const query = await connection.query(
+            `SELECT * FROM links
+            WHERE id = $1
+            `,
+            [id]
+        )
+        if (!query.rows[0]) return res.sendStatus(404)
+        if (query.rows[0].userId !== user.userId) return res.sendStatus(401)
+
+        next()
+    } catch (e) {
+        return res.status(500).send(e)
+    }
+}
