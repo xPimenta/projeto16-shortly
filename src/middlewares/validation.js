@@ -55,3 +55,45 @@ export async function validateSignIn(req, res, next) {
         res.status(500).send(e)
     }
 }
+
+
+export async function validateURL(req, res, next) {
+    const shortenURLSchema = joi.object({
+        url: joi.string().uri().required(),
+    })
+
+    const validation = shortenURLSchema.validate(req.body)
+    if (validation.error) {
+        return res.status(422).send(validation.error)
+    }
+
+    next()
+}
+
+export async function validateToken(req, res, next) {
+    const { authorization } = req.headers
+
+    try {
+        const token = authorization?.replace("Bearer ", "").trim()
+        if (!token) return res.sendStatus(401)
+
+        const exists = await connection.query(
+            `SELECT * FROM tokens
+            WHERE tokens.name = $1
+            `,
+            [token]
+        )
+        if (!exists.rows[0]) return res.sendStatus(401)
+
+        const key = process.env.JWT_SECRET
+        const tokenVerification = jwt.verify(token, key)
+
+        if (!tokenVerification) return res.sendStatus(401)
+
+        res.locals.user = exists.rows[0]
+
+        next()
+    } catch (e) {
+        return res.status(500).send(e)
+    }
+}
