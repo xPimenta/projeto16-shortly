@@ -26,7 +26,7 @@ export async function signIn(req, res) {
 
     try {
         const key = process.env.JWT_SECRET
-        const tokenConfig = { expiresIn: 60 * 60 * 12 } // Twelve hours
+        const tokenConfig = { expiresIn: 60 * 60 * 12 }
         const token = jwt.sign({ email: email }, key, tokenConfig)
         const now = dayjs().format("DD/MM/YYYY HH:mm:ss")
 
